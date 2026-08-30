@@ -2,6 +2,10 @@
 
 https://github.com/ilkerya/Essence
 
+Libraries Installed
+MFRRC522
+https://github.com/miguelbalboa/rfid
+
 
 For Sending Commands Set-> New Line / 115200 baud
 Commands List  // CaseSensitive , only one emptySpace 
