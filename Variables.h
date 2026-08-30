@@ -1,6 +1,6 @@
 
 #define BTN_STOP_ALARM    0
-
+    String NFC_Type ="Nothing";
 String receivedMessage = "";  // Variable to store the complete message
 //bool Data_Int_Enable = OFF; // default PC MODE
  // default PC MODE
@@ -122,6 +122,10 @@ struct
 
 struct
 {
+    bool State;
+  //uint8_t Power; // 0 USB + BATTERY CHARGE  / 16   USB  + NO BATTERY    / 32 ONLY BATTERY
+  bool Charge;
+  bool Stbye;
   uint32_t Temp; 
   float F_Val;
   uint16_t Volt;    // 31
@@ -129,11 +133,8 @@ struct
   //uint32_t Volt_32;
   //uint16_t Array[ARRAY_SIZE];
   uint8_t Avg_Counter;
-  bool State;
-  //uint8_t Power; // 0 USB + BATTERY CHARGE  / 16   USB  + NO BATTERY    / 32 ONLY BATTERY
-  bool Charge;
-  bool Standbye;
-}Battery;
+
+}Battery_Scent;
 struct
 {
   uint32_t Temp; 
@@ -142,12 +143,18 @@ struct
   uint8_t Avg_Counter;
   bool State;
 }Usb;
-
+struct
+{
+  uint8_t *Id;
+   uint8_t Id_Size = 0; 
+  //uint64_t ID;
+  uint64_t IDOrg;
+  bool NewCard;
+  bool CardRead;
+}Nfc;
 
 struct
 {
-
- 
   uint8_t LowSpeed;
   uint8_t HighSpeed;
   uint8_t MidSpeed; 

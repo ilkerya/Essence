@@ -80,7 +80,7 @@ void setup() {
  // Scanner ();
    //analogWrite(ledPin, dutyCycle);
  // print_wakeup_reason();
-
+  Init_IO();
   Init_TempHSensors();     
   Init_Light_Sensor();
   Init_TVoc();
@@ -100,6 +100,8 @@ void setup() {
   SPI.begin(NFC_CLK, NFC_MISO, NFC_MOSI, NFC_CS);  
   // Initialize the Ci523 / MFRC522 card reader
   mfrc522.PCD_Init();  
+ // Nfc.CardRead =ON  ;
+  NFC_Init_Func();
 
 }
 
@@ -303,9 +305,9 @@ void loop() {
         if (Color.Fade)Serial.print("-Dimm");
       } 
       Serial.print(F("  Bat:")) ;    
-      Battery.F_Val = (float)Battery.Volt;
-      Battery.F_Val /= 1000;
-      Serial.print(Battery.F_Val,2); 
+      Battery_Scent.F_Val = (float)Battery_Scent.Volt;
+      Battery_Scent.F_Val /= 1000;
+      Serial.print(Battery_Scent.F_Val,2); 
 
       Serial.print(F("V  Usb:")) ; 
 
@@ -314,12 +316,19 @@ void loop() {
       Serial.print(Usb.F_Val,2); 
 
       Serial.print(F("V  Stdb:")); 
-      if(Battery.Standbye)Serial.print(F("ON "));
+
+ 
+
+      if(Battery_Scent.Stbye)Serial.print(F("ON "));
       else Serial.print(F("OFF "));
 
+     // if(digitalRead(BAT_STANDBYE))Serial.print(F("ON "));
+     // else Serial.print(F("OFF "));
+
       Serial.print(F(" Chg:"));
-      if(Battery.Charge)Serial.print(F("ON  "));
+      if(Battery_Scent.Charge)Serial.print(F("ON  "));
       else Serial.print(F("OFF  "));     
+
     //  Serial.print(Battery.Standbye);Serial.print(F("  Chg:")); Serial.print(Battery.Charge);
 
      Serial.print(Values.Temperature,1);Serial.print(F("°C %")); Serial.print(Values.Humidity,0);Serial.print(F("rh "));
@@ -329,10 +338,28 @@ void loop() {
      Serial.print(Values.Lux,1);Serial.print(F("Lux ")); 
  
     if(Connection.NTP_Done)Serial.print(rtc.getTime(" %H:%M:%S %d.%B.%Y")); 
+    Serial.println(F(" "));
+    Serial.print(F("NFC: "));
+    if(Nfc.NewCard){
+          Nfc.NewCard = OFF;
+          Serial.print(F("New Card !!! "));
+      }
+    Serial.print(NFC_Type);
+    Serial.print(F("  Id: "));
+    for (uint8_t i = 0; i < Nfc.Id_Size; i++) {
+      Serial.print((uint8_t)Nfc.Id[i] < 0x10 ? " 0" : " ");  
+      Serial.print((uint8_t)Nfc.Id[i], HEX); 
+    } 
 
+      if(Nfc.CardRead){
+          Nfc.CardRead = OFF;
+        // Serial.print(F("    Card Detected! UID Tag Type: "));
+           //Serial.print(RFID_No);
+
+      }
       #ifdef WIFI_INCLUDE
      if (WiFi.status() == WL_CONNECTED) {
-            Serial.print(" IP:");Serial.print(WiFi.localIP());
+            Serial.print(F(" IP:"));Serial.print(WiFi.localIP());
       }
     //   Serial.print(F("/")); Serial.print(Connection.WIFI_Reconn_Timer);Serial.print(F("."));Serial.print(Connection.WIFI_Est_Connect); 
     //   Serial.print(F("TimerPress")); Serial.print(Key.TimerPress);Serial.print(F("Mode"));Serial.print(Key.Mode);

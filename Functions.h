@@ -99,23 +99,71 @@ void Set_Sleep_Run_Off(void) {
    }
   }
 }
-void NFC_Func(void){
-    if ( !mfrc522.PICC_IsNewCardPresent()) return;
-    Serial.println(F("New Card Found: "));
-    if ( !mfrc522.PICC_ReadCardSerial()) return;
-            // Print Tag UID information to the Serial Monitor
-    Serial.println(F("Card Detected! UID Tag Type: "));
+
+void NFC_Init_Func(void){
+  // NFC_Type ="No Card";
+   // if ( !mfrc522.PICC_ReadCardSerial())    return;
+   //bool Read = mfrc522.PICC_ReadCardSerial();
     MFRC522::PICC_Type piccType = mfrc522.PICC_GetType(mfrc522.uid.sak);
-    Serial.println(mfrc522.PICC_GetTypeName(piccType));
+    NFC_Type  = mfrc522.PICC_GetTypeName(piccType);
+   // Serial.print(mfrc522.PICC_GetTypeName(piccType));
           // Print the Unique Identifier (UID) bytes in hexadecimal format
-    Serial.print(F("UID Bytes (HEX): "));
-    for (byte i = 0; i < mfrc522.uid.size; i++) {
-      Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
-      Serial.print(mfrc522.uid.uidByte[i], HEX);
+   Nfc.Id_Size = mfrc522.uid.size;
+   if(Nfc.Id_Size < 1)NFC_Type ="Nothing";
+   Nfc.Id = (uint8_t*)&mfrc522.uid.uidByte[0];
+   /*
+    for (uint8_t i = 0; i < Nfc.Id_Size; i++) {
+      Serial.print((uint8_t)Nfc.Id[i] < 0x10 ? " 0" : " ");  
+      Serial.print((uint8_t)Nfc.Id[i], HEX); 
+    } 
+*/
+        mfrc522.PICC_HaltA();
+        // Stop encryption on PCD (resets the reader's state machine)
+    mfrc522.PCD_StopCrypto1();
+
+}
+void NFC_Func(void){
+  /*
+    if ( !mfrc522.PICC_IsNewCardPresent())    return;
+    Nfc.NewCard =ON;
+   // Serial.println(F("New Card !!! "));
+    if ( !mfrc522.PICC_ReadCardSerial())    return;
+    Nfc.CardRead =ON  ;
+
+    */
+            // Print Tag UID information to the Serial Monitor
+   // Serial.print(F("    Card Detected! UID Tag Type: "));
+     bool Read = mfrc522.PICC_IsNewCardPresent(); 
+    Read = mfrc522.PICC_ReadCardSerial();
+    if(!Read){
+       // NFC_Type ="Nothing";
+        //Nfc.Id_Size = 0;
+       // return;
     }
-    Serial.println();
-    Serial.println(F("----------------------------------------------"));
+    MFRC522::PICC_Type piccType = mfrc522.PICC_GetType(mfrc522.uid.sak);
+    NFC_Type  = mfrc522.PICC_GetTypeName(piccType);
+
+
+/*
+    for (byte i = 0; i < Nfc.Id_Size; i++) {
+      Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+      Serial.print(mfrc522.uid.uidByte[i], HEX);  
+       // Nfc.IDOrg += mfrc522.uid.uidByte[i] << 4*(mfrc522.uid.size-1-i);      
+    }
+       */  
+    Nfc.Id_Size = mfrc522.uid.size;   
+    Nfc.Id = (uint8_t*)&mfrc522.uid.uidByte[0];
+    if(Nfc.Id_Size < 2)NFC_Type ="Nothing";
+    /*
+    for (uint8_t i = 0; i < Nfc.Id_Size; i++) {
+      Serial.print((uint8_t)Nfc.Id[i] < 0x10 ? " 0" : " ");  
+      Serial.print((uint8_t)Nfc.Id[i], HEX); 
+    }   
+*/
+  //  Serial.println();
+   // Serial.println(F("----------------------------------------------"));
         // Halt PICC (stops the card from constantly being re-read while held near the antenna)
+      
     mfrc522.PICC_HaltA();
         // Stop encryption on PCD (resets the reader's state machine)
     mfrc522.PCD_StopCrypto1();
@@ -245,18 +293,21 @@ void Battery_Volt(void){
   temp *= 98; //300+680
   temp /= 30;  // /300
 
-    Battery.Temp += temp;
-    Battery.Avg_Counter++;
-    if(Battery.Avg_Counter >=10){
-      Battery.Volt =(uint16_t)( Battery.Temp/10);
-      Battery.Temp = 0;
-      Battery.Avg_Counter = 0;
+    Battery_Scent.Temp += temp;
+    Battery_Scent.Avg_Counter++;
+    if(Battery_Scent.Avg_Counter >=10){
+      Battery_Scent.Volt =(uint16_t)( Battery_Scent.Temp/10);
+      Battery_Scent.Temp = 0;
+      Battery_Scent.Avg_Counter = 0;
     }
  // Battery.Volt =(uint16_t)temp;
-  if(digitalRead(BAT_CHARGE))Battery.Charge = OFF;
-  else Battery.Charge = ON;
-  if(digitalRead(BAT_STANDBYE))Battery.Standbye = OFF;
-  else Battery.Standbye = ON;
+  if(digitalRead(BAT_CHARGE))Battery_Scent.Charge = OFF;
+  else Battery_Scent.Charge = ON;
+
+ // pinMode(BAT_STANDBYE, INPUT_PULLUP);
+  if(digitalRead(BAT_STANDBYE))Battery_Scent.Stbye = OFF;
+  else Battery_Scent.Stbye = ON;
+
 }
  void Color_Dec2Hex(void){
     char myHex[10] = "";
@@ -269,7 +320,16 @@ void Battery_Volt(void){
  }
 void  Init_IO(void){
   pinMode(BAT_CHARGE, INPUT);
-  pinMode(BAT_STANDBYE, INPUT);
+
+
+
+//  pinMode(BAT_STANDBYE, INPUT);
+  pinMode(BAT_STANDBYE, INPUT_PULLUP);
+   //gpio_pullup_dis(BAT_STANDBYE); 
+
+//gpio_set_direction(BAT_STANDBYE, GPIO_MODE_INPUT);
+//gpio_set_pull_mode(BAT_STANDBYE, GPIO_FLOATING); // Disables pull-up and pull-down
+
   pinMode(FAN_FEEDBACK, INPUT);
   pinMode(KEY, INPUT);
   pinMode (KEY, INPUT_PULLUP);
