@@ -3,11 +3,13 @@
 void Key_Mode_Update(void) {
       System.Mode++;
       if(System.Mode <= RUN_TEST_LIMIT){
-        if(System.Mode > RUN_HIGH)System.Mode = RUN_OFF;
+    //    if(System.Mode > RUN_HIGH)System.Mode = RUN_OFF; // 2026.09.27 tus takim degisikligi
+        if(System.Mode > RUN_HIGH)System.Mode = RUN_LOW; // // 2026.09.27 tus takim degisikligi   
         Reset_Run_Modes();
       }
       else{
-        if(System.Mode > TEST_HIGH)System.Mode = TEST_OFF;    
+   //     if(System.Mode > TEST_HIGH)System.Mode = TEST_OFF;    // 2026.09.27 tus takim degisikligi
+        if(System.Mode > TEST_HIGH)System.Mode = TEST_LOW;    // 2026.09.27 tus takim degisikligi        
       } 
       Color.Fade = OFF;
        Key.ColorFade_timer = FADE_TIME;
@@ -33,7 +35,16 @@ void Key_Functions_Digital(void) {
   }
   if(Key.Key1_Rel && !Key.Key1) {  // still pressed
     Key.TimerPress ++; 
-    if(Key.TimerPress > 350)ESP.restart(); //20ms*350 = 7000mS 7 sec
+   // if(Key.TimerPress > 350)ESP.restart(); //20ms*350 = 7000mS 7 sec // 2026.09.27 tus takim degisikligi 
+    if((Key.TimerPress > 50) && (Key.TimerPress < 200)){  // 2026.09.27 tus takim degisikligi 
+          if(System.Mode <= RUN_TEST_LIMIT)System.Mode = RUN_OFF;  // 2026.09.27 tus takim degisikligi 
+          else System.Mode = TEST_OFF;  // 2026.09.27 tus takim degisikligi 
+          Key.Inhibit = ON;  // 2026.09.27 tus takim degisikligi 
+    }  
+    if(Key.TimerPress >= 200){
+          // onboarding
+    }
+
   }
   if(Key.Key1_Rel && Key.Key1) {  // key released job done
     Key.Key1_Rel = 0;

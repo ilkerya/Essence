@@ -57,7 +57,7 @@ MFRC522 mfrc522(NFC_CS, NFC_RST);
 
 //ESP32 Update Link from preferences
 // https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-
+uint32_t Test_Counter = 0;
 void setup() {
   WatchdogTimer_Set();
   Init_IO();
@@ -137,11 +137,17 @@ void loop() {
      Battery_Volt();
      NFC_Func();
 
+
+
+
+
   }
    if(System.Loop_500mSec){
      System.Loop_500mSec = OFF;
      Execute_Serial_Commands();
      USB_Volt();
+
+
 
   }
   if(System.LOOP_5Second){
@@ -152,9 +158,11 @@ void loop() {
 
  if(System.LOOP_1Second){
      System.LOOP_1Second = OFF;  
-
-    
-
+/*
+             Serial.print(F("Loop_1Sec!  ")); 
+          Serial.println(Test_Counter); 
+          Test_Counter++; 
+*/
 
   // Select one of the cards and read its data
 
@@ -202,7 +210,7 @@ void loop() {
     if(System.PC_Serial_Mode)
         DAQ_Send_Data(LOOP_BASED); 
     else{
-
+      //  return;
       if(Key.DoubPress){
           Key.DoubPress = OFF; 
           Serial.println(F("Double Press!")); 

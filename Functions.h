@@ -176,15 +176,15 @@ void SystemTimers(void){
    
   }
 */
-
-  if(System.Loop_20mSecCounter >= 2000){ //10uSecx2.000 = 20.000 uSec  
+ // if(System.Loop_20mSecCounter >= 2000){ //10uSecx2.000 = 20.000 uSec  
+  if(System.Loop_20mSecCounter > 2000){ //10uSecx2.000 = 20.000 uSec  
     System.Loop_20mSecCounter = 0;
     System.LOOP_20mSec = ON;
     Key_Functions_Digital();
 
     
     System.Loop_100mSecCounter++;
-    if(System.Loop_100mSecCounter >= 5){
+    if(System.Loop_100mSecCounter > 4){
       System.Loop_100mSecCounter = 0;
       System.Loop_100mSec = ON;
 
@@ -192,11 +192,11 @@ void SystemTimers(void){
      else analogWrite(LED_CANDLE, 0);
 
       System.Loop_500mSecCounter++;
-      if(System.Loop_500mSecCounter >= 5){
+      if(System.Loop_500mSecCounter > 4){
         System.Loop_500mSecCounter = 0;
         System.Loop_500mSec = ON;
         System.Loop_1SecCounter++;
-        if(System.Loop_1SecCounter >= 2){
+        if(System.Loop_1SecCounter > 1){
           System.Loop_1SecCounter = 0;
           System.LOOP_1Second = ON;
 
